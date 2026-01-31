@@ -69,7 +69,7 @@ Database (MongoDB)
 ##  Project Structure
 
 ```
-Weather_Application/
+Weather_Application_Docker/
 │
 ├── frontend/
 │   ├── Dockerfile
