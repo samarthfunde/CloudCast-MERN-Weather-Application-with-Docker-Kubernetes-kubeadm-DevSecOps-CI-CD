@@ -1,5 +1,3 @@
-// backend/db.js
-//for the running mongodb start the mongodb win + r "services.msc" and find the mongodb and start it
 import mongoose from "mongoose";
 
 const connectDB = async () => {

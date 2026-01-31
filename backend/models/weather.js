@@ -1,5 +1,4 @@
-// backend/models/weather.js
-
+import mongoose from "mongoose";
 
 const weatherSchema = new mongoose.Schema(
   {
