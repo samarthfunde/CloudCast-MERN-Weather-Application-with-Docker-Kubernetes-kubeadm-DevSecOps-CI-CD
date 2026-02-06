@@ -11,8 +11,10 @@ pipeline {
     }
 
     tools {
-        nodejs "node-18"
-    }
+    nodejs "node-18"
+    sonarQubeScanner "sonar-scanner"
+}
+
 
     stages {
 
