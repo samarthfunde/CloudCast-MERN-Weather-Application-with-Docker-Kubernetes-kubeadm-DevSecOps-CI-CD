@@ -7,8 +7,10 @@ COPY . .
 RUN npm run build
 
 # Runtime stage
-FROM nginx:alpine
+FROM nginx:alpine3.23
+RUN apk update && apk upgrade
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
+
