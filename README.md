@@ -6,7 +6,10 @@ The purpose of this project is to build a cloud-native 3-tier MERN stack Weather
 
 ---
 
-##  Architecture Overview (3-Tier)
+
+## step 1: Dockerized Application
+
+###  Architecture Overview (3-Tier)
 
 ```
 User Browser
@@ -32,7 +35,7 @@ Browser → App → Ingress / LB URL
 
 
 
-| Tier         | Component | Responsibility                  |
+| Tier         | Component | Responsibility                   |
 |--------------|-----------|----------------------------------|
 | Presentation | Frontend  | Shows weather data to users      |
 | Application  | Backend   | Handles API requests & logic     |
@@ -40,7 +43,7 @@ Browser → App → Ingress / LB URL
 
 ---
 
-##  Frontend Preview
+###  Frontend Preview
 
 <img width="1914" height="888" alt="image" src="https://github.com/user-attachments/assets/74cc9a4f-4c84-4cb8-82aa-3968a47667c1" />
 
@@ -48,7 +51,7 @@ Browser → App → Ingress / LB URL
 
 ---
 
-##  Database Preview
+###  Database Preview
 
 <img width="1919" height="813" alt="image" src="https://github.com/user-attachments/assets/c7cbbb81-8213-4591-a3f6-39041f229074" />
 
@@ -58,7 +61,7 @@ Browser → App → Ingress / LB URL
 
 ---
 
-##  Tech Stack
+###  Tech Stack
 
 | Technology       | Usage                          |
 |------------------|--------------------------------|
@@ -74,7 +77,7 @@ Browser → App → Ingress / LB URL
 
 ---
 
-##  Project Structure
+###  Project Structure
 
 ```
 Weather_Application_Docker/
@@ -95,7 +98,7 @@ Weather_Application_Docker/
 
 ---
 
-##  Environment Variables
+###  Environment Variables
 
 ### Frontend `.env`
 
@@ -116,19 +119,26 @@ MONGO_URI=mongodb://weather-db:27017/weatherdb
 
 ---
 
-##  Dockerfiles
+###  Dockerfiles
 
 ### Frontend `Dockerfile`
 
 ```dockerfile
-FROM node:18
+# Build stage
+FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
+
+# Runtime stage
+FROM nginx:alpine3.23
+RUN apk update && apk upgrade
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
 ```
 
 ---
@@ -136,18 +146,18 @@ CMD ["npm", "start"]
 ### Backend `Dockerfile`
 
 ```dockerfile
-FROM node:18
+FROM node:20.11-alpine3.1
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 EXPOSE 5000
-CMD ["node", "server.js"]
+CMD ["node", "index.js"]
 ```
 
 ---
 
-##  docker-compose.yml
+###  docker-compose.yml
 
 ```yaml
 version: "3.8"
@@ -185,7 +195,7 @@ volumes:
 
 ---
 
-##  Docker Networking
+###  Docker Networking
 
 Docker Compose **automatically** creates a custom bridge network:
 
@@ -201,11 +211,11 @@ All containers communicate using their **service names**:
 | Backend            | `weather-backend`  |
 | Database           | `weather-db`       |
 
-> 👉 This network is created automatically when `docker-compose up` is executed. DNS resolution is handled by Docker — **no IP hardcoding needed**.
+- This network is created automatically when `docker-compose up` is executed. DNS resolution is handled by Docker — **no IP hardcoding needed**.
 
 ---
 
-##  Docker Volumes (Database Persistence)
+###  Docker Volumes (Database Persistence)
 
 A named volume ensures that **database data is not lost** when the container restarts.
 
@@ -222,7 +232,7 @@ MongoDB stores its data at:
 
 ---
 
-##  Running the Application
+###  Running the Application
 
 ### Step 1: Clone the Repository
 
@@ -247,7 +257,7 @@ docker volume ls
 
 ---
 
-##  Access the Application
+###  Access the Application
 
 | Service      | URL                                      |
 |--------------|------------------------------------------|
@@ -256,7 +266,7 @@ docker volume ls
 
 ---
 
-##  View Database Data (MongoDB)
+###  View Database Data (MongoDB)
 
 ```bash
 # Enter the MongoDB container
@@ -277,7 +287,7 @@ db.weather.find()
 
 ---
 
-##  How Containers Communicate (Interview Answer)
+###  How Containers Communicate (Interview Answer)
 
 1. Docker Compose creates a **custom bridge network** automatically.
 2. Containers communicate using ** ip & service names** 
@@ -291,7 +301,7 @@ db.weather.find()
 
 ---
 
-##  Push Images to Docker Hub
+###  Push Images to Docker Hub
 
 ### Login
 
@@ -334,7 +344,7 @@ Verify cluster status:
 kubectl get nodes
 ```
 
-## Project Structure
+### Project Structure
 ```
 weather-k8s/
 ├── namespace.yaml
@@ -353,7 +363,7 @@ weather-k8s/
     └── frontend-service.yaml
 ```
 
-## Deployment Steps
+### Deployment Steps
 
 ### Step 1: Create Namespace
 
@@ -458,7 +468,7 @@ Example:
 http://192.168.1.100:30008
 ```
 
-## Updating Application After New Docker Image Push
+### Updating Application After New Docker Image Push
 
 Update frontend image:
 ```bash
@@ -476,7 +486,7 @@ kubectl rollout status deployment/frontend -n weather-app
 kubectl rollout status deployment/backend -n weather-app
 ```
 
-## Rollback Deployment
+### Rollback Deployment
 
 Check deployment history:
 ```bash
@@ -488,7 +498,7 @@ Rollback to previous version:
 kubectl rollout undo deployment/frontend -n weather-app
 ```
 
-## Monitoring and Debugging
+### Monitoring and Debugging
 
 View all pods:
 ```bash
@@ -515,7 +525,7 @@ Execute commands inside pod:
 kubectl exec -it POD_NAME -n weather-app -- /bin/bash
 ```
 
-## Delete All Resources
+### Delete All Resources
 
 Delete entire namespace and all resources:
 ```bash
@@ -530,7 +540,7 @@ kubectl delete -f database/
 kubectl delete -f namespace.yaml
 ```
 
-## Architecture Overview
+### Architecture Overview
 
 - MongoDB uses Persistent Volume for data storage and durability
 - Backend connects to MongoDB using ClusterIP service
@@ -539,7 +549,7 @@ kubectl delete -f namespace.yaml
 - Rolling updates enabled for zero downtime deployments
 - Horizontal scaling possible by increasing replicas
 
-## Security Implementations
+### Security Implementations
 
 - Namespace isolation for resource separation
 - Kubernetes Secrets for sensitive environment variables
@@ -548,7 +558,7 @@ kubectl delete -f namespace.yaml
 - NodePort or LoadBalancer for external access only where needed
 - Image pull policies configured for production use
 
-## Troubleshooting Common Issues
+### Troubleshooting Common Issues
 
 If pods are not starting check:
 ```bash
@@ -565,7 +575,7 @@ If persistent volume claim is pending check:
 kubectl describe pvc PVC_NAME -n weather-app
 ```
 
-## Notes
+### Notes
 
 - Replace NODE_IP with actual Kubernetes node IP address
 - Replace username with your DockerHub username
@@ -595,7 +605,7 @@ Kubernetes Service Frontend NodePort
 Frontend Pod → Backend Service → Backend Pod → MongoDB
 ```
 
-## Prerequisites
+### Prerequisites
 
 Before starting ensure:
 
@@ -604,7 +614,7 @@ Before starting ensure:
 - Frontend service is exposed via NodePort
 - IAM permissions for Route53, ACM, ELB, EC2
 
-## Step 3.1: Create ACM Certificate for HTTPS
+### Step 3.1: Create ACM Certificate for HTTPS
 
 ### Purpose
 
@@ -635,7 +645,7 @@ Click Request button to submit
 
 Certificate status will show Pending validation
 
-## Step 3.2: Validate Certificate Using Route53
+### Step 3.2: Validate Certificate Using Route53
 
 ### Steps to Validate
 
@@ -654,7 +664,7 @@ Validation typically takes 5 to 10 minutes
 
 Certificate is now ready to use with HTTPS
 
-## Step 3.3: Create Application Load Balancer
+### Step 3.3: Create Application Load Balancer
 
 ### Steps to Create ALB
 
@@ -683,7 +693,7 @@ Configure security groups:
 - Create or select security group
 - Allow inbound traffic on ports 80 and 443
 
-## Step 3.4: Configure Listeners for HTTP and HTTPS
+### Step 3.4: Configure Listeners for HTTP and HTTPS
 
 ### Listener Configuration
 
@@ -720,7 +730,7 @@ Status code: 301 Permanent Redirect
 
 This ensures all HTTP traffic redirects to HTTPS
 
-## Step 3.5: Create Target Group
+### Step 3.5: Create Target Group
 
 ### Target Group Configuration
 
@@ -759,7 +769,7 @@ Click Include as pending below button
 
 Click Create target group button
 
-## Step 3.6: Attach Target Group to Load Balancer
+### Step 3.6: Attach Target Group to Load Balancer
 
 Go back to Load Balancer configuration
 
@@ -780,7 +790,7 @@ Note the DNS name:
 weather-app-alb-1234567890.region.elb.amazonaws.com
 ```
 
-## Step 3.7: Configure Route53 DNS Record
+### Step 3.7: Configure Route53 DNS Record
 
 ### Steps to Create DNS Record
 
@@ -830,7 +840,7 @@ Click Create records button
 
 Wait for DNS propagation typically 5 to 10 minutes
 
-## Access Application
+### Access Application
 
 Application is now accessible at:
 ```
@@ -844,12 +854,12 @@ Verification checklist:
 - Application loads successfully
 - HTTP traffic redirects to HTTPS
 
-## Traffic Flow Summary
+### Traffic Flow Summary
 ```
 User Request → Route 53 DNS Resolution → ALB HTTPS 443 → Target Group → Kubernetes Worker Node NodePort → Frontend Service → Frontend Pod
 ```
 
-## Security Benefits
+### Security Benefits
 
 - End to end TLS encryption
 - AWS managed SSL certificates
@@ -859,7 +869,7 @@ User Request → Route 53 DNS Resolution → ALB HTTPS 443 → Target Group → 
 - DDoS protection via AWS Shield Standard
 - Security group level access control
 
-## Verification Commands
+### Verification Commands
 
 Check Kubernetes services:
 ```bash
@@ -878,7 +888,7 @@ EC2 → Target Groups → weather-frontend-tg → Targets tab
 
 All targets should show healthy status
 
-## Troubleshooting
+### Troubleshooting
 
 If application is not accessible:
 
@@ -918,7 +928,7 @@ Jenkins communicates with:
 
 ---
 
-## Step 4.1: Jenkins Installation (On EC2 / Ubuntu Server)
+### Step 4.1: Jenkins Installation (On EC2 / Ubuntu Server)
 
 Install:
 
@@ -938,7 +948,7 @@ sudo systemctl enable jenkins
 
 ---
 
-## Step 4.2: Required Jenkins Plugins
+### Step 4.2: Required Jenkins Plugins
 
 Install these plugins:
 
@@ -951,7 +961,7 @@ Install these plugins:
 
 ---
 
-## Step 4.3: Configure Global Tools in Jenkins
+### Step 4.3: Configure Global Tools in Jenkins
 
 Go to:
 
@@ -969,7 +979,7 @@ Install automatically from Maven Central.
 
 ---
 
-## Step 4.4: SonarQube Integration
+### Step 4.4: SonarQube Integration
 
 ### Install SonarQube (on same or separate server)
 
@@ -999,7 +1009,7 @@ Manage Jenkins → Configure System → SonarQube Servers
 
 ---
 
-## Step 4.5: DockerHub Credentials
+### Step 4.5: DockerHub Credentials
 
 Go to:
 
@@ -1014,7 +1024,7 @@ ID example: `dockerhub-creds`
 
 ---
 
-## Step 4.6: Jenkins ↔ Kubernetes Communication (kubeconfig Method)
+### Step 4.6: Jenkins ↔ Kubernetes Communication (kubeconfig Method)
 
 Jenkins communicates with Kubernetes using `kubeconfig`.
 
@@ -1056,7 +1066,7 @@ This allows Jenkins to:
 
 ---
 
-## Step 4.7: CI/CD Pipeline Flow
+### Step 4.7: CI/CD Pipeline Flow
 
 When code is pushed:
 
@@ -1136,7 +1146,7 @@ If deployment fails:
 
 ---
 
-##  Deployment Verification
+###  Deployment Verification
 
 Check pods:
 
@@ -1152,7 +1162,7 @@ kubectl rollout status deployment/backend -n weather-app
 
 ---
 
-##  Rollback Strategy
+###  Rollback Strategy
 
 If deployment fails:
 
@@ -1164,7 +1174,7 @@ Kubernetes automatically rolls back to previous ReplicaSet.
 
 ---
 
-## Security Layers in CI/CD
+### Security Layers in CI/CD
 
 | Layer        | Tool        | Purpose |
 |-------------|------------|----------|
@@ -1179,11 +1189,12 @@ Kubernetes automatically rolls back to previous ReplicaSet.
 
 # Step 5: GitHub Webhook Setup (GitHub ↔ Jenkins)
 
+## Goal: 
 Webhook allows automatic pipeline trigger on code push.
 
 ---
 
-## Step 5.1: Get Jenkins Public URL
+### Step 5.1: Get Jenkins Public URL
 
 Example:
 
@@ -1195,7 +1206,7 @@ Make sure port 8080 is open in Security Group.
 
 ---
 
-## Step 5.2: Configure Webhook in GitHub
+### Step 5.2: Configure Webhook in GitHub
 
 Go to:
 
@@ -1222,7 +1233,7 @@ Save.
 
 ---
 
-## Step 5.3: Enable GitHub Hook Trigger in Jenkins
+### Step 5.3: Enable GitHub Hook Trigger in Jenkins
 
 In Jenkins Job:
 
@@ -1238,7 +1249,7 @@ Now every Git push automatically triggers Jenkins pipeline.
 
 ---
 
-## Complete CI/CD Flow
+### Complete CI/CD Flow
 
 1. Developer pushes code to GitHub
 2. GitHub Webhook triggers Jenkins
@@ -1253,7 +1264,7 @@ Now every Git push automatically triggers Jenkins pipeline.
 
 ---
 
-## Final Result
+### Final Result
 
 - Automated CI/CD  
 - Secure image scanning  
@@ -1264,7 +1275,7 @@ Now every Git push automatically triggers Jenkins pipeline.
 
 ---
 
-##  Project Status
+###  Project Status
 
 This project successfully implements:
 
