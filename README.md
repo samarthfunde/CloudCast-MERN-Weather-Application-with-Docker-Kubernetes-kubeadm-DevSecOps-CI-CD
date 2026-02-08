@@ -1,4 +1,4 @@
-# Cloud-Native Weather Forecast Application | MERN Stack with Docker, Kubernetes & DevSecOps CI/CD
+<img width="1919" height="965" alt="Screenshot 2026-02-07 023930" src="https://github.com/user-attachments/assets/52e2c7bc-cf7b-4760-87d7-694669d49668" /># Cloud-Native Weather Forecast Application | MERN Stack with Docker, Kubernetes & DevSecOps CI/CD
 
 ##  Project Purpose
 
@@ -1185,6 +1185,7 @@ kubectl rollout undo deployment/backend -n weather-app
 ```
 
 Kubernetes automatically rolls back to previous ReplicaSet.
+
 
 ---
 
