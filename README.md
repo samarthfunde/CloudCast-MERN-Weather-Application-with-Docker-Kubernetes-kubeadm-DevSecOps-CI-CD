@@ -1208,6 +1208,11 @@ Kubernetes automatically rolls back to previous ReplicaSet.
 
 #### Sonarqube Quality Gate:
 
+<img width="1919" height="711" alt="image" src="https://github.com/user-attachments/assets/20d642f9-c6a0-4df3-8988-4248b6e16240" />
+
+<img width="1448" height="603" alt="image" src="https://github.com/user-attachments/assets/546e3cf2-831e-463f-8741-24d306caabd5" />
+
+
 <img width="1914" height="951" alt="Screenshot 2026-02-04 181451" src="https://github.com/user-attachments/assets/d1ea4e31-154e-4520-a984-cd270eaf1f86" />
 
 #### Trivy Scan:
@@ -1222,6 +1227,9 @@ Kubernetes automatically rolls back to previous ReplicaSet.
 
 #### Success of CI/CD
 
+<img width="1918" height="692" alt="image" src="https://github.com/user-attachments/assets/4ac8ac59-25f2-443c-8b72-6210ecc59945" />
+
+<img width="1919" height="855" alt="image" src="https://github.com/user-attachments/assets/2e409c7f-ff86-4cab-879c-1ce943a5d1ff" />
 
 ---
 
@@ -1327,6 +1335,16 @@ This project successfully implements:
 - Trivy security scanning
 - GitHub Webhook automation
 - Version-controlled deployments
+
+### Snapshot after change frontend code by developer
+
+### Before:
+
+<img width="1912" height="969" alt="Screenshot 2026-02-07 022834" src="https://github.com/user-attachments/assets/3b9137ce-7861-41c3-9ef5-7fb8cfcd6e52" />
+
+### After ( means updated version of image in the k8s frontend deployment through the jenkins ci/cd)
+
+<img width="1919" height="965" alt="Screenshot 2026-02-07 023930" src="https://github.com/user-attachments/assets/6ec7aa37-7930-41d9-bb9e-da68cb312311" />
 
 ---
 
