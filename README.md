@@ -1,4 +1,4 @@
-#  Weather Application – 3-Tier Architecture using Docker
+# Cloud-Native Weather Forecast Application | MERN Stack with Docker, Kubernetes & DevSecOps CI/CD
 
 ##  Project Purpose
 
